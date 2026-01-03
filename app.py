@@ -12,7 +12,7 @@ from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
 
 from datetime import datetime
 
-BOT_TOKEN = "8539002353:AAHwLB9wKy9cgYGN_VwU6m2X00lPnhu6R9o"
+BOT_TOKEN = "8437087674:AAEEBJDfEkxl0MbA__lsSF4A7qc7UpwzGU4"
 
 bot = Bot(token=BOT_TOKEN)
 
@@ -292,17 +292,17 @@ async def send_to_all_groups(msg):
 
         [
 
-            InlineKeyboardButton(text="☎️ Numbers", url="https://t.me/primezone3"),
+            InlineKeyboardButton(text="☎️ Numbers", url="https://t.me/+c4VCxBCT3-QzZGFk"),
 
-            InlineKeyboardButton(text="💬 Discussion",url="https://t.me/primezone_discussion")
+            InlineKeyboardButton(text="📱 Channel",url="https://t.me/Jndtech1")
 
         ],
 
         [
 
-            InlineKeyboardButton(text="👨‍💻 Developer", url="https://t.me/NONEXPERTCODER"),
+            InlineKeyboardButton(text="👨‍💻 Developer", url="https://t.me/junaidniz786"),
 
-            InlineKeyboardButton(text="✉️ OTP", url="https://t.me/primeotpzone")
+            InlineKeyboardButton(text="🚀 YouTube", url="https://youtube.com/@junaidniz786?si=tQFOJbg7aDL5XpG7")
 
         ]
 
