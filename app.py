@@ -12,13 +12,13 @@ from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
 
 from datetime import datetime
 
-BOT_TOKEN = "8437087674:AAEEBJDfEkxl0MbA__lsSF4A7qc7UpwzGU4"
+BOT_TOKEN = "8437826394:AAEnIx5XUlucZy-gd_UusLlVyJ-SIg-f4FM"
 
 bot = Bot(token=BOT_TOKEN)
 
 GROUP_IDS = [
 
-    -1003361941052,
+    -1002836673794,
 
 ]
 
@@ -30,21 +30,21 @@ GROUP_IDS = [
 
 CR_API_URL = "http://51.77.216.195/crapi/dgroup/viewstats"
 
-CR_TOKEN = "RFdVNEVBg2mHV21KhGFwZlN2j3JYZYJlRpZSiUZvdVVemG-He2M="
+CR_TOKEN = "RFRSNEVBdnh3V1NpVHCYQXNfl2hZiGx_R22GZop3d3pBZJJfXGU="
 
 CR_RECORD_LIMIT = 20
 
 # ============================
 
-#      CR API SETTINGS
+#      MAIT API SETTINGS
 
 # ============================
 
-CR_API_URL = "http://147.135.212.197/crapi/st/viewstats"
+MAIT_API_URL = "http://51.77.216.195/crapi/mait/viewstats"
 
-CR_TOKEN = "RVdWRElBUzRGcW9WeneNcmd2cGV9ZJd8e29PVlyPcFxeamxSgWVXfw=="
+MAIT_TOKEN = "SlRXRzRSQkV6dZGKRmaOV31ml3xKbolJU1CSYXVwinRpcoBVhV9v"
 
-CR_RECORD_LIMIT = 20
+MAIT_RECORD_LIMIT = 20
 
 # ============================
 
@@ -142,7 +142,7 @@ def fetch_latest_from_cr():
 
 # ============================
 
-#    FETCH CR API
+#    FETCH MAIT API
 
 # ============================
 
@@ -150,11 +150,11 @@ def fetch_latest_from_mait():
 
     try:
 
-        response = requests.get(CR_API_URL, params={
+        response = requests.get(MAIT_API_URL, params={
 
-            "token": CR_TOKEN,
+            "token": MAIT_TOKEN,
 
-            "records": CR_RECORD_LIMIT
+            "records": MAIT_RECORD_LIMIT
 
         }, timeout=10)
 
@@ -162,7 +162,7 @@ def fetch_latest_from_mait():
 
         if data.get("status") != "success":
 
-            print("CR API Error:", data)
+            print("MAIT API Error:", data)
 
             return None
 
@@ -188,7 +188,7 @@ def fetch_latest_from_mait():
 
     except Exception as e:
 
-        print("CR API Fetch Error:", e)
+        print("MAIT API Fetch Error:", e)
 
         return None
 
@@ -282,7 +282,8 @@ def format_message(record):
 <blockquote>🔐 OTP: <code>{otp}</code></blockquote>
 <blockquote>📩 Full Message:</blockquote>
 <pre>{clean}</pre>
-Powered by Junaid Niz 💗 
+Powered by 💕 <b> Prime OTP </b> 💕 
+Support 💫 <strong> Adnan </strong> 💫
 
 """
 
@@ -292,17 +293,17 @@ async def send_to_all_groups(msg):
 
         [
 
-            InlineKeyboardButton(text="☎️ Numbers", url="https://t.me/+c4VCxBCT3-QzZGFk"),
+            InlineKeyboardButton(text="☎️ Numbers", url="https://t.me/primezone3"),
 
-            InlineKeyboardButton(text="📱 Channel",url="https://t.me/Jndtech1")
+            InlineKeyboardButton(text="💬 Discussion",url="https://t.me/primezone_discussion")
 
         ],
 
         [
 
-            InlineKeyboardButton(text="👨‍💻 Developer", url="https://t.me/junaidniz786"),
+            InlineKeyboardButton(text="👨‍💻 Developer", url="https://t.me/NONEXPERTCODER"),
 
-            InlineKeyboardButton(text="🚀 YouTube", url="https://youtube.com/@junaidniz786?si=tQFOJbg7aDL5XpG7")
+            InlineKeyboardButton(text="✉️ OTP", url="https://t.me/primeotpzone")
 
         ]
 
@@ -370,7 +371,7 @@ async def cr_worker():
 
 async def mait_worker():
 
-    print("[STARTED] CR API Worker")
+    print("[STARTED] MAIT API Worker")
 
     last = None
 
@@ -382,7 +383,7 @@ async def mait_worker():
 
             if not cli_passes_filter(data["service"]):
 
-                print("[FILTER] CR API Skipped:", data["service"])
+                print("[FILTER] MAIT API Skipped:", data["service"])
 
                 await asyncio.sleep(3)
 
@@ -398,7 +399,7 @@ async def mait_worker():
 
                 await send_to_all_groups(msg)
 
-                print(f"[CR] Sent: {data['service']} | {data['number']}")
+                print(f"[MAIT] Sent: {data['service']} | {data['number']}")
 
         await asyncio.sleep(3)
 
