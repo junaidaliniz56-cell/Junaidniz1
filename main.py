@@ -11,7 +11,6 @@ bot = Bot(token=BOT_TOKEN)
 
 GROUP_IDS = [
     -1002915052882,
-  
 ]
 
 API_URLS = [
