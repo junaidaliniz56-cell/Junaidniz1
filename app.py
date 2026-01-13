@@ -1,426 +1,196 @@
 import asyncio
-
 import requests
-
 import re
-
 import phonenumbers
-
 from phonenumbers import geocoder
-
 from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
-
 from datetime import datetime
 
-BOT_TOKEN = "8437826394:AAEnIx5XUlucZy-gd_UusLlVyJ-SIg-f4FM"
-
+BOT_TOKEN = "8483422365:AAFy-wqcI77f_F8QukPXZ3N9Hlzk9xABrRc"
 bot = Bot(token=BOT_TOKEN)
 
 GROUP_IDS = [
-
-    -1002836673794,
-
+    -1003361941052,
+    -1002076058429,
+    -1003512657207,
+  
 ]
 
-# ============================
-
-#      CR API SETTINGS
-
-# ============================
-
-CR_API_URL = "http://51.77.216.195/crapi/dgroup/viewstats"
-
-CR_TOKEN = "RFRSNEVBdnh3V1NpVHCYQXNfl2hZiGx_R22GZop3d3pBZJJfXGU="
-
-CR_RECORD_LIMIT = 20
-
-# ============================
-
-#      MAIT API SETTINGS
-
-# ============================
-
-MAIT_API_URL = "http://51.77.216.195/crapi/mait/viewstats"
-
-MAIT_TOKEN = "SlRXRzRSQkV6dZGKRmaOV31ml3xKbolJU1CSYXVwinRpcoBVhV9v"
-
-MAIT_RECORD_LIMIT = 20
-
-# ============================
-
-#    CLI FILTER SETTINGS
-
-# ============================
-
-ALLOWED_CLIS = [
-
-    # "google",
-
-    # "facebook",
-
-    # "msverify"
-    
-    # "Whatsapp"
-
+API_URLS = [
+    "https://kamina-otp.up.railway.app/npm-neon/sms",
+    "https://web-production-b717.up.railway.app/api?type=sms",
+    "https://kamina-otp.up.railway.app/d-group/sms",
+    "https://kamina-otp.up.railway.app/mait/sms",
+    "https://kami-broken.up.railway.app/api?type=sms",
+    "https://juanidniz-pw-orpin.vercel.app/api/tempotps?type=sms",
+    "https://teamlegend-gamma.vercel.app/api/dgroup?type=sms",
+    "https://api-kami-nodejs-production.up.railway.app/api?type=sms",
 ]
 
-BLOCKED_CLIS = [
-
-    # "ads",
-
-    # "promo",
-
-]
-
-CLI_FILTER_MODE = "off"  # "allow" / "block" / "off"
-
-def cli_passes_filter(cli):
-
-    cli_lower = cli.lower()
-
-    if CLI_FILTER_MODE == "allow":
-
-        return any(a.lower() in cli_lower for a in ALLOWED_CLIS)
-
-    elif CLI_FILTER_MODE == "block":
-
-        return not any(b.lower() in cli_lower for b in BLOCKED_CLIS)
-
-    return True
-
-# ============================
-
-#    FETCH CR API
-
-# ============================
-
-def fetch_latest_from_cr():
-
+def fetch_latest_otp(api_url):
     try:
-
-        response = requests.get(CR_API_URL, params={
-
-            "token": CR_TOKEN,
-
-            "records": CR_RECORD_LIMIT
-
-        }, timeout=10)
-
+        response = requests.get(api_url, timeout=10)
         data = response.json()
 
-        if data.get("status") != "success":
-
-            print("CR API Error:", data)
-
+        records = data.get("aaData", [])
+        valid = [r for r in records if isinstance(r[0], str) and ":" in r[0]]
+        if not valid:
             return None
 
-        records = data.get("data", [])
-
-        if not records:
-
-            return None
-
-        latest = records[0]
-
+        latest = valid[0]
         return {
-
-            "time": latest.get("dt", ""),
-
-            "number": latest.get("num", ""),
-
-            "service": latest.get("cli", ""),
-
-            "message": latest.get("message", "")
-
+            "time": latest[0],
+            "country": latest[1],
+            "number": latest[2],
+            "service": latest[3],
+            "message": latest[4],
         }
-
     except Exception as e:
-
-        print("CR API Fetch Error:", e)
-
+        print(f"Error from {api_url}: {e}")
         return None
 
-# ============================
-
-#    FETCH MAIT API
-
-# ============================
-
-def fetch_latest_from_mait():
-
-    try:
-
-        response = requests.get(MAIT_API_URL, params={
-
-            "token": MAIT_TOKEN,
-
-            "records": MAIT_RECORD_LIMIT
-
-        }, timeout=10)
-
-        data = response.json()
-
-        if data.get("status") != "success":
-
-            print("MAIT API Error:", data)
-
-            return None
-
-        records = data.get("data", [])
-
-        if not records:
-
-            return None
-
-        latest = records[0]
-
-        return {
-
-            "time": latest.get("dt", ""),
-
-            "number": latest.get("num", ""),
-
-            "service": latest.get("cli", ""),
-
-            "message": latest.get("message", "")
-
-        }
-
-    except Exception as e:
-
-        print("MAIT API Fetch Error:", e)
-
-        return None
-
-# ============================
-
-#       HELPER FUNCTIONS
-
-# ============================
 
 def extract_otp(message):
-
     for pat in [r'\d{3}-\d{3}', r'\d{6}', r'\d{4}']:
-
         match = re.search(pat, message)
-
         if match:
-
             return match.group(0)
-
     return "N/A"
 
+
 def mask_number(number_str):
-
     try:
-
         number_str = f"+{number_str}"
-
         length = len(number_str)
 
-        show_first = 5 if length >= 10 else 4
+        if length < 10:
+            show_first = 4
+            show_last = 2
+        else:
+            show_first = 5
+            show_last = 4
 
-        show_last = 4 if length >= 10 else 2
-
-        stars = "*" * (length - show_first - show_last)
+        stars = '*' * (length - show_first - show_last)
+        if len(stars) < 0:
+            return number_str
 
         return f"{number_str[:show_first]}{stars}{number_str[-show_last:]}"
-
     except:
-
         return f"+{number_str}"
 
-def get_country_info(number_str):
 
+def get_country_info_from_number(number_str):
     try:
-
         if not number_str.startswith("+"):
-
-            number_str = "+" + number_str
+            number_str = f"+{number_str}"
 
         parsed = phonenumbers.parse(number_str)
-
         country_name = geocoder.description_for_number(parsed, "en")
+        region_code = phonenumbers.region_code_for_number(parsed)
 
-        region = phonenumbers.region_code_for_number(parsed)
-
-        if region:
-
+        if region_code:
             base = 127462 - ord("A")
-
-            flag = chr(base + ord(region[0])) + chr(base + ord(region[1]))
-
+            flag = chr(base + ord(region_code[0])) + chr(base + ord(region_code[1]))
         else:
-
             flag = "🌍"
 
         return country_name or "Unknown", flag
 
     except:
-
         return "Unknown", "🌍"
 
+
 def format_message(record):
-
     raw = record["message"]
-
     otp = extract_otp(raw)
+    msg = raw.replace("<", "&lt;").replace(">", "&gt;")
 
-    clean = raw.replace("<", "&lt;").replace(">", "&gt;")
+    country_name, flag = get_country_info_from_number(record["number"])
+    formatted_number = mask_number(record["number"])
 
-    country, flag = get_country_info(record["number"])
-
-    masked = mask_number(record["number"])
+    service_icon = "📱"
+    s = record["service"].lower()
+    if "whatsapp" in s:
+        service_icon = "🟢"
+    elif "telegram" in s:
+        service_icon = "🔵"
+    elif "facebook" in s:
+        service_icon = "📘"
 
     return f"""
+<b>{flag} New {country_name} {record['service']} OTP!</b>
 
-<b>{flag} New {record['service']} OTP!</b>
-<blockquote>🕐 Time: {record['time']}</blockquote>
-<blockquote>{flag} Country: {country}</blockquote>
-<blockquote>📲 Service: {record['service']}</blockquote>
-<blockquote>📞 Number: {masked}</blockquote>
-<blockquote>🔐 OTP: <code>{otp}</code></blockquote>
+<blockquote>🕰 Time: {record['time']}</blockquote>
+<blockquote>{flag} Country: {country_name}</blockquote>
+<blockquote>{service_icon} Service: {record['service']}</blockquote>
+<blockquote>📞 Number: {formatted_number}</blockquote>
+<blockquote>🔑 OTP: <code>{otp}</code></blockquote>
+
 <blockquote>📩 Full Message:</blockquote>
-<pre>{clean}</pre>
-Powered by 💕 <b> Prime OTP </b> 💕 
-Support 💫 <strong> Adnan </strong> 💫
+<pre>{msg}</pre>
 
+Powered by Junaid Niz 💗 
 """
 
-async def send_to_all_groups(msg):
 
+async def send_to_all_groups(message):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-
         [
-
-            InlineKeyboardButton(text="☎️ Numbers", url="https://t.me/primezone3"),
-
-            InlineKeyboardButton(text="💬 Discussion",url="https://t.me/primezone_discussion")
-
+            InlineKeyboardButton(text="📱 Channel", url="https://t.me/jndtech1"),
+            InlineKeyboardButton(text="☎️ Numbers", url="https://t.me/+c4VCxBCT3-QzZGFk")
         ],
-
         [
-
-            InlineKeyboardButton(text="👨‍💻 Developer", url="https://t.me/NONEXPERTCODER"),
-
-            InlineKeyboardButton(text="✉️ OTP", url="https://t.me/primeotpzone")
-
+            InlineKeyboardButton(text="👨‍💻 Developer", url="https://t.me/junaidniz786"),
+            InlineKeyboardButton(text="📣 YouTube", url="https://youtube.com/@junaidniz786?si=tQFOJbg7aDL5XpG7")
         ]
-
     ])
 
-    for gid in GROUP_IDS:
-
+    for group in GROUP_IDS:
         try:
-
             await bot.send_message(
-
-                chat_id=gid,
-
-                text=msg,
-
+                chat_id=group,
+                text=message,
                 parse_mode="HTML",
-
                 reply_markup=keyboard
-
             )
-
         except Exception as e:
+            print(f"Error sending to group {group}: {e}")
 
-            print(f"Send Error -> {gid}: {e}")
 
-# ============================
+# =======================
+#      MAIN LOOPS
+# =======================
 
-#         WORKERS
+async def api_worker(api_url):
+    print(f"[STARTED] Worker for {api_url}")
 
-# ============================
-
-async def cr_worker():
-
-    print("[STARTED] CR API Worker")
-
-    last = None
+    last_number = None
 
     while True:
+        otp = fetch_latest_otp(api_url)
 
-        data = fetch_latest_from_cr()
+        if otp:
+            if otp["number"] != last_number:
+                last_number = otp["number"]
 
-        if data:
-
-            if not cli_passes_filter(data["service"]):
-
-                print("[FILTER] CR API Skipped:", data["service"])
-
-                await asyncio.sleep(3)
-
-                continue
-
-            uniq = data["number"] + data["message"]
-
-            if uniq != last:
-
-                last = uniq
-
-                msg = format_message(data)
-
+                msg = format_message(otp)
                 await send_to_all_groups(msg)
 
-                print(f"[CR] Sent: {data['service']} | {data['number']}")
+                print(f"[{datetime.now()}] Sent new OTP from {otp['number']} | API: {api_url}")
 
         await asyncio.sleep(3)
 
-async def mait_worker():
-
-    print("[STARTED] MAIT API Worker")
-
-    last = None
-
-    while True:
-
-        data = fetch_latest_from_mait()
-
-        if data:
-
-            if not cli_passes_filter(data["service"]):
-
-                print("[FILTER] MAIT API Skipped:", data["service"])
-
-                await asyncio.sleep(3)
-
-                continue
-
-            uniq = data["number"] + data["message"]
-
-            if uniq != last:
-
-                last = uniq
-
-                msg = format_message(data)
-
-                await send_to_all_groups(msg)
-
-                print(f"[MAIT] Sent: {data['service']} | {data['number']}")
-
-        await asyncio.sleep(3)
-
-# ============================
-
-#          MAIN
-
-# ============================
 
 async def main():
+    print("Starting multi-API, multi-group OTP bot...")
 
-    print("Starting Prime OTP Bot...")
+    tasks = []
+    for api in API_URLS:
+        tasks.append(asyncio.create_task(api_worker(api)))
 
-    await asyncio.gather(
+    await asyncio.gather(*tasks)
 
-        cr_worker(),
-
-        mait_worker()
-
-    )
 
 if __name__ == "__main__":
-
     asyncio.run(main())
+
