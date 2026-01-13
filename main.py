@@ -137,7 +137,7 @@ async def send_to_all_groups(message):
             InlineKeyboardButton(text="☎️ Numbers", url="https://t.me/sarkarmethod")
         ],
         [
-            InlineKeyboardButton(text="👨‍💻 Developer", url="https://t.me/junaidniz786"),
+            InlineKeyboardButton(text="👨‍💻 Developer", url="https://t.me/Mrkingbrand1"),
             InlineKeyboardButton(text="🟢 Whatsapp", url="https://whatsapp.com/channel/0029Vb7EeyK7DAX7ELryeQ3a")
         ]
     ])
