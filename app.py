@@ -10,9 +10,7 @@ BOT_TOKEN = "8217285098:AAGZ4hZyXaTUq89h_JSPFQLkbpQ1hzRhy9o"
 bot = Bot(token=BOT_TOKEN)
 
 GROUP_IDS = [
-    -1003361941052,
-    -1002076058429,
-    -1003512657207,
+    -1002915052882,
   
 ]
 
@@ -141,7 +139,7 @@ async def send_to_all_groups(message):
         ],
         [
             InlineKeyboardButton(text="👨‍💻 Developer", url="https://t.me/junaidniz786"),
-            InlineKeyboardButton(text="📣 YouTube", url="")
+            InlineKeyboardButton(text="🟢 Whatsapp", url="https://whatsapp.com/channel/0029Vb7EeyK7DAX7ELryeQ3a")
         ]
     ])
 
