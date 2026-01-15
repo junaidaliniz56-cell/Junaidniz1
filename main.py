@@ -10,7 +10,7 @@ BOT_TOKEN = "8217285098:AAGZ4hZyXaTUq89h_JSPFQLkbpQ1hzRhy9o"
 bot = Bot(token=BOT_TOKEN)
 
 GROUP_IDS = [
-    -1002915052882,
+    -1002717770463,
 ]
 
 API_URLS = [
@@ -126,7 +126,7 @@ def format_message(record):
 <blockquote>📩 Full Message:</blockquote>
 <pre>{msg}</pre>
 
-Powered by Mr King  👑 
+Powered by Mr king x hanan king
 """
 
 
